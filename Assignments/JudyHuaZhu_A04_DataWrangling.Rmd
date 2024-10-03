@@ -80,15 +80,38 @@ dim(EPAir_PM25_19)
 
 ```{r questions 3 thru 4}
 #3
-
+EPAir_O3_18$Date <- as.Date(EPAir_O3_18$Date, format = "%m/%d/%Y")
+EPAir_O3_19$Date <- as.Date(EPAir_O3_19$Date,format = "%m/%d/%Y" )
+EPAir_PM25_18$Date <- as.Date(EPAir_PM25_18$Date,format = "%m/%d/%Y")
+EPAir_PM25_19$Date <- as.Date(EPAir_PM25_19$Date,format = "%m/%d/%Y")
 
 #4
-
+EPAir_O3_18_Q4 <- EPAir_O3_18 %>%
+  select(Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, 
+         SITE_LATITUDE, SITE_LONGITUDE)
+EPAir_O3_19_Q4 <- EPAir_O3_19 %>%
+  select(Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, 
+         SITE_LATITUDE, SITE_LONGITUDE)
+EPAir_PM25_18_Q4 <- EPAir_PM25_18 %>%
+  select(Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, 
+         SITE_LATITUDE, SITE_LONGITUDE)
+EPAir_PM25_19_Q4 <- EPAir_PM25_19 %>%
+  select(Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, 
+         SITE_LATITUDE, SITE_LONGITUDE)
 
 #5
-
+EPAir_PM25_18_Q4$AQS_PARAMETER_DESC <- "PM2.5"
+EPAir_PM25_19_Q4$AQS_PARAMETER_DESC <- "PM2.5"
 
 #6
+write.csv(EPAir_O3_18_Q4, row.names = FALSE, 
+          file = "./Data/Processed/EPAair_O3_NC2018_Processed.csv")
+write.csv(EPAir_O3_19_Q4, row.names = FALSE, 
+          file = "./Data/Processed/EPAair_O3_NC2019_Processed.csv")
+write.csv(EPAir_PM25_18_Q4, row.names = FALSE, 
+          file = "./Data/Processed/EPAair_PM25_NC2018_Processed.csv")
+write.csv(EPAir_PM25_19_Q4, row.names = FALSE, 
+          file = "./Data/Processed/EPAair_PM25_NC2019_Processed.csv")
 
 ```
 
@@ -122,19 +145,39 @@ dim(EPAir_PM25_19)
 
 ```{r questions 7 thru 11}
 #7 
-
+EPAir_combine <- rbind(EPAir_O3_18_Q4,EPAir_O3_19_Q4,
+                       EPAir_PM25_18_Q4,EPAir_PM25_19_Q4)
 
 #8 
+EPAir_combine_Q8 <- EPAir_combine %>%
+  
+  filter( Site.Name %in% c( "Linville Falls", "Durham Armory", "Leggett", 
+          "Hattie Avenue",  "Clemmons Middle", "Mendenhall School", 
+          "Frying Pan Mountain",  "West Johnston Co.", "Garinger High School", 
+          "Castle Hayne", "Pitt Agri. Center", "Bryson City", 
+          "Millbrook School"))%>%
+  
+   group_by(Date,Site.Name,AQS_PARAMETER_DESC,COUNTY) %>%
+   summarise(meanAQI = mean(DAILY_AQI_VALUE), 
+             meanLat = mean(SITE_LATITUDE), 
+             meanLong = mean(SITE_LONGITUDE)) %>%
+
+   mutate(Month = month(Date))%>%
+   mutate(Year = year(Date))
 
 
 #9
-
+EPAir_combined_Q9 <- pivot_wider(EPAir_combine_Q8, 
+                                 names_from =AQS_PARAMETER_DESC, 
+                                 values_from = meanAQI)
 
 #10
 
+dim(EPAir_combined_Q9)
 
 #11
-
+write.csv(EPAir_combined_Q9, row.names = FALSE, 
+          file ="./Data/Processed/EPAair_O3_PM25_NC1819_Processed.csv")
 
 ```
 
@@ -148,15 +191,19 @@ dim(EPAir_PM25_19)
 ```{r questions 12 and 13}
 
 #12
-
-
+EPAir_summary <- EPAir_combined_Q9 %>%
+   group_by(Site.Name,Month,Year) %>%
+   summarise(meanAQI_Ozone = mean(Ozone), 
+             meanAQI_PM2.5 = mean(PM2.5)) %>% 
+  drop_na(meanAQI_Ozone)
+           
 #13
-
+dim(EPAir_summary)
 
 
 ```
 
 14. Why did we use the function `drop_na` rather than `na.omit`? Hint: replace `drop_na` with `na.omit` in part 12 and observe what happens with the dimensions of the summary date frame.
 
-> Answer: 
+> Answer: If we use 'na.omit', rows of PM2.5 with NA data will also be dropped. This command remove all rows with any NA values. Therefore, we use 'drop.na' to keep data with NA in PM2.5
 

@@ -31,7 +31,7 @@ here()
 
 #Read in the data
 NTL.phys.data <- read.csv(
-  file=here("Data/Raw/NTL-LTER_Lake_ChemistryPhysics_Raw.csv"), 
+  file=here("Data/Raw/EPAair_O3_NC2018_raw.csv"), 
   stringsAsFactors = TRUE
 )
 
@@ -81,10 +81,15 @@ NTL.phys.data.JunethruOctober <- filter(NTL.phys.data, daynum %in% c(152:304))
 # filter NTL.phys.data for the year 1999
 # what code do you need to use, based on the class of the variable?
 
+NTL.phys.data.1999 <- filter(NTL.phys.data, year4 == 1999)
+summary(NTL.phys.data.1999)
 
 # Exercise 2: 
 # filter NTL.phys.data for Tuesday Lake from 1990 through 1999.
-
+NTL.phys.data.TuesLake <- filter(NTL.phys.data, lakename == "Tuesday Lake",year4 >= 1990 & year4 <=1999)
+NTL.phys.data.TuesLake19c <- filter(NTL.phys.data.TuesLake, year4 >= 1990 & year4 <=1999)
+NTL.phys.data.TuesLake19c
+NTL.phys.data.TuesLake
 
 ```
 Question: Why don't we filter using row numbers?
@@ -104,20 +109,31 @@ Let's say we want to take our raw dataset (NTL.phys.data), *then* filter the dat
 #Example using pipes to wrangle data: 
 #Add pipes in the correct place below
 NTL.phys.data.processed <- 
-  NTL.phys.data
-  filter(lakename == "Paul Lake" | lakename == "Peter Lake") 
-  select(lakename, sampledate:temperature_C) 
+  NTL.phys.data %>% 
+  filter(lakename == "Paul Lake" | lakename == "Peter Lake") %>% 
+  select(lakename, sampledate:temperature_C) %>% 
   mutate(temperature_F = (temperature_C*9/5) + 32)
 
 #Exercise 3: Using a pipe filter NTL.phys.data for Tuesday Lake from 1990 
 # through 1999 only for July.
+NTL.phys.data.TuesLake.July <-
+  NTL.phys.data.TuesLake %>% 
+  filter (month(sampledate) == 07)
 
   
 
 #Exercise 4: Using the data from part 3, a pipe, and the summarize() function, 
 # find the mean surface water temperature. 
-# (hint: you will need to filter for depth==0.25). 
+# (hint: you will need to filter for depth==0). 
 
+  NTL.phys.data.TuesLake.July.T_mean <-
+    NTL.phys.data.TuesLake.July%>% 
+    drop_na(temperature_C) %>% 
+    filter (depth==0) %>% 
+    summarise(
+      mean_surface = mean (temperature_C)
+    )
+    NTL.phys.data.TuesLake.July.T_mean
   
 ```
 
