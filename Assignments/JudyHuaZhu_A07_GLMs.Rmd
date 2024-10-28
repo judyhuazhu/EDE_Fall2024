@@ -74,7 +74,7 @@ lakedata <- lake %>%
 plotQ5 <- ggplot(lakedata, aes( x=depth, y = temperature_C)) +
   geom_point(alpha = 0.5)+
   ylim (0,35)+
-  geom_smooth(method = "lm", se = TRUE, color = "purple")+
+  geom_smooth(method = "lm", se = FALSE, color = "purple")+
   labs(title = "lake temperature by depth in July", x = "depth (m)", 
        y = "Temperature (°C)")
 
@@ -158,7 +158,7 @@ plotQ14 <- ggplot(lakedata, aes( x=depth, y = temperature_C, color=lakename)) +
   geom_smooth(method = "lm", se = FALSE, color = "purple")+
   labs(title = "lake temperature by depth in July", x = "depth (m)", 
        y = "Temperature (°C)")+
-  theme(legend.position = "right")
+  theme(legend.position = "bottom")
 
 print(plotQ14)
 
@@ -174,20 +174,23 @@ print(Lakename.Tukey)
 
 16.From the findings above, which lakes have the same mean temperature, statistically speaking, as Peter Lake? Does any lake have a mean temperature that is statistically distinct from all the other lakes?
 
->Answer: Ward lake statictically have same mean temperature as Peter lake. There is no lake that is statistically distinct from all other lakes.
+>Answer: Ward lake and Pual lake have statistically same mean temperature as Peter lake. There is no lake that is statistically distinct from all other lakes.
 
  
-
 17. If we were just looking at Peter Lake and Paul Lake. What's another test we might explore to see whether they have distinct mean temperatures? 
 
->Answer: 
+>Answer: We can perform a two sample t-test to explore the difference in mean temperatures in Peter and Paul Lake.
 
 
 
 18. Wrangle the July data to include only records for Crampton Lake and Ward Lake. Run the two-sample T-test on these data to determine whether their July temperature are same or different. What does the test say? Are the mean temperatures for the lakes equal? Does that match you answer for part 16?
 
 ```{r t.test}
+crampton.ward <- lakedata %>% 
+  filter(lakename == "Crampton Lake" | lakename == "Ward Lake")
 
+crampton.ward.ttest <- t.test(data = crampton.ward, temperature_C ~ lakename)
+print(crampton.ward.ttest)
 ```
 
->Answer: 
+>Answer: The t-test shows that the mean temperature of Crampton lake and Ward lake is not statistically different. This matches the answer in part 16.
