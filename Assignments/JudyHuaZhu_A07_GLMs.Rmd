@@ -155,10 +155,10 @@ summary(LakeTemp.lm)
 plotQ14 <- ggplot(lakedata, aes( x=depth, y = temperature_C, color=lakename)) +
   geom_point(alpha = 0.5)+
   ylim (0,35)+
-  geom_smooth(method = "lm", se = FALSE, color = "purple")+
+  geom_smooth(method = "lm", se = FALSE)+
   labs(title = "lake temperature by depth in July", x = "depth (m)", 
        y = "Temperature (°C)")+
-  theme(legend.position = "bottom")
+  theme(legend.position = "right")
 
 print(plotQ14)
 
@@ -169,6 +169,8 @@ print(plotQ14)
 ```{r tukey.test}
 #15
 Lakename.Tukey <- TukeyHSD(LakeTemp.anova)
+lake_groups <- HSD.test(LakeTemp.anova, group = T, 'lakename')
+print(lake_groups)
 print(Lakename.Tukey)
 ```
 
