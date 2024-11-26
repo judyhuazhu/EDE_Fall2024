@@ -57,7 +57,7 @@ counties <- st_read(here('Data/Spatial/cb_2018_us_county_20m.shp'))%>%
 st_crs(counties)
 
 #5. Plot the data
-plot(counties,pch=16)
+mapview(counties)
 
 ```
 
@@ -185,12 +185,12 @@ Now we can examine where the flooding appears most acute by visualizing gage hei
 ```{r map gage sites}
 #Map the points, sized by gage height
 mapview(nwis_combined,
-        zcol = 'gage_ht')+
-  mapview(counties, fill = "white",color = "black")
+        zcol= 'gage_ht', alpha = 1)+
+  mapview(counties, color = "white")
+
 
 ```
 
----
 
 ## SPATIAL ANALYSIS
 
@@ -201,7 +201,6 @@ Up next we will do some spatial analysis with our data. To prepare for this, we 
 
 20. Transform the counties and gage sf datasets to UTM Zone 14N (EPGS = 32614).
 21. Using `mapview` or `ggplot`, plot the data so that each can be seen as different colors
-
 ```{r spatial analysis}
 #20 Transform the counties and gage location datasets to UTM Zone 14
 counties.utm14 <- st_transform(counties, 32614)
@@ -218,6 +217,7 @@ ggplot() +
 
 ### Select the gages falling within a given county
 
+
 Now let's zoom into a particular county and examine the gages located there. 
 22. Select Lancaster county from your projected county sf dataframe 
 23. Select the gage sites falling within that county to a new spatial dataframe
@@ -233,12 +233,13 @@ Now let's zoom into a particular county and examine the gages located there.
 #22 Select the county
 Lancaster <- counties %>% filter (NAME=="Lancaster")
 
+
 #23 Spatially select gages within the selected county
 gage.lancaster <- st_intersection(nwis.sf, Lancaster)
 
 #24 Spatially select gages within 15 k of the selected county
-lancaster.15 <- st_buffer(Lancaster, dist = 30000)
-gage.lancaster.15 <- st_intersection(lancaster.15, nwis_combined_projected)
+lancaster.15 <- st_buffer(Lancaster, dist = 15000)
+gage.lancaster.15 <- st_intersection(lancaster.15, nwis_combined)
 
 #25 Plot
 ggplot() + 
@@ -246,6 +247,7 @@ ggplot() +
   geom_sf(data = Lancaster, fill = "purple")+
   geom_sf(data = gage.lancaster.15, color = "blue", alpha = 0.5)+
   geom_sf(data = gage.lancaster, color = "yellow", size = 0.5)
+  
 
 
 
